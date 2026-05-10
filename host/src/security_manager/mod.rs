@@ -449,7 +449,12 @@ impl Inner {
         connections: &ConnectionManager<'_, P>,
         storage: &mut ConnectionStorage<P::Packet>,
     ) -> Result<(), Error> {
-        if let Some(sm) = self.pairing_sm.as_mut() {
+        if self.pairing_sm.as_ref().is_some_and(|sm| {
+            storage
+                .peer_identity
+                .is_none_or(|peer| peer.match_address(&sm.peer_address()))
+        }) {
+            let sm = self.pairing_sm.as_mut().unwrap();
             let mut ops = PairingOpsImpl {
                 bonds,
                 events,
@@ -508,7 +513,13 @@ impl Inner {
         connections: &ConnectionManager<'_, P>,
         storage: &mut ConnectionStorage<P::Packet>,
     ) {
-        if let Some(sm) = self.pairing_sm.as_mut() {
+        if self.pairing_sm.as_ref().is_some_and(|sm| {
+            storage
+                .peer_identity
+                .is_none_or(|peer| peer.match_address(&sm.peer_address()))
+        }) {
+            let sm = self.pairing_sm.as_mut().unwrap();
+
             // If we were waiting for bonded encryption, mark the bond as
             // rejected on this connection so the next pairing attempt will
             // skip bonded encryption and initiate fresh pairing instead.
