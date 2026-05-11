@@ -83,6 +83,7 @@ pub(crate) fn parse_arg_uuid(value: &Expr) -> Result<TokenStream2> {
             let span = other.span(); // span will highlight if the value does not impl Into<Uuid>
             Ok(quote::quote_spanned! { span =>
                 {
+                    #[allow(clippy::useless_conversion)]
                     let uuid: trouble_host::types::uuid::Uuid = #other.into();
                     uuid
                 }
